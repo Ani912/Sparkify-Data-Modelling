@@ -49,59 +49,59 @@ Project run strategy would be to run `create_tables.py` and then `etl.py`, this 
 
 #### Total different artists and songs in the database:
 ```sql
-        select 
-            count(distinct sq.artist_name) artist_cnt, 
-            count(distinct sq.title) song_cnt 
-        from 
-            (
-                select 
-                    a.artist_name, 
-                    s.title
-                from 
-                    songs_d s 
-                    left join artists_d a 
-                    on s.artist_id = a.artist_id
-            ) sq;
+select
+    count(distinct sq.artist_name) artist_cnt,
+    count(distinct sq.title) song_cnt
+from
+    (
+        select
+            a.artist_name,
+            s.title
+        from
+            songs_d s
+            left join artists_d a
+            on s.artist_id = a.artist_id
+    ) sq;
 ```
 
 #### Top 5 location where users belong to the free tier of sparkify;
 ```sql
-        select 
-            location, 
-            count(distinct user_id) user_cnt 
-        from 
-            songplay_f 
-        where 
-            level = 'free' 
-        group by 
-            location 
-        order by 
-            user_cnt desc 
-        limit 5;
+select
+    location,
+    count(distinct user_id) user_cnt
+from
+    songplay_f
+where
+    level = 'free'
+group by
+    location
+order by
+    user_cnt desc
+limit 5;
 ```
 
-#### Some more deep dive into level based demographics on our user data: 
+#### Some more deep dive into level based demographics on our user data:
 ```sql
-        select 
-            sq.level, 
-            count(distinct sq.user_id) user_cnt, 
-            count(distinct sq.session_id) session_cnt, 
-            sq.gender 
-        from 
-            (
-                select 
-                    s.level, 
-                    s.user_id, 
-                    s.session_id, 
-                    u.gender 
-                from 
-                    songplay_f s 
-                    left join users_d u 
-                    on u.user_id=s.user_id
-            ) sq 
-        group by 
-            sq.level, 
-            sq.gender 
-        order by 
-            gender;
+select
+    sq.level,
+    count(distinct sq.user_id) user_cnt,
+    count(distinct sq.session_id) session_cnt,
+    sq.gender
+from
+    (
+        select
+            s.level,
+            s.user_id,
+            s.session_id,
+            u.gender
+        from
+            songplay_f s
+            left join users_d u
+            on u.user_id=s.user_id
+    ) sq
+group by
+    sq.level,
+    sq.gender
+order by
+    gender;
 ```
