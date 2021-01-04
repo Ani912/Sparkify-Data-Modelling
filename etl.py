@@ -9,7 +9,18 @@ from sql_queries import *
 
 def bulk_commit(cur, conn, df, table_insert, enable_list=False):
     """
-    Function to perform bulk write ops to postgres
+    Description:
+        Function to perform bulk write ops to postgres
+
+    Arguments:
+        cur: the cursor object.
+        conn: postgres connection object.
+        df: pandas df holding base insert data
+        table_insert: respective table insert statement
+        enable_list: enable iteration on dataframe rows
+
+    Returns:
+        None
     """
     for i, row in df.iterrows():
         if not enable_list:
@@ -22,7 +33,16 @@ def bulk_commit(cur, conn, df, table_insert, enable_list=False):
 
 def process_song_file(cur, conn, filelist):
     """
-    Populate songs and artist data to respective dimension tables
+    Description:
+        Populate songs and artist data to respective dimension tables
+
+    Arguments:
+        cur: the cursor object.
+        conn: postgres connection object.
+        filelist: list of files for respective data
+
+    Returns:
+        None
     """
     # open song files and populate df
     songs = []
@@ -45,8 +65,17 @@ def process_song_file(cur, conn, filelist):
 
 def process_log_file(cur, conn, filelist):
     """
-    - Populate users and timestamp data to respective dimension tables
-    - Populate all relevant facts to fact tables
+    Description:
+        - Populate users and timestamp data to respective dimension tables
+        - Populate all relevant facts to fact tables
+
+    Arguments:
+        cur: the cursor object.
+        conn: postgres connection object.
+        filelist: list of files for respective data
+
+    Returns:
+        None
     """
     # open log file
     logs = []
@@ -104,7 +133,14 @@ def process_log_file(cur, conn, filelist):
 
 def get_files(filepath):
     """
-    Function returns list of all the files on the given path
+    Description:
+        Function returns list of all the files on the given path
+
+    Arguments:
+        filepath: data file path.
+
+    Returns:
+        None
     """
     all_files = []
     for root, dirs, files in os.walk(f"./data/{filepath}"):
@@ -116,8 +152,18 @@ def get_files(filepath):
 
 def process_data(cur, conn, filepath, func):
     """
-    - Reads json files and populates it into df
-    - Writes entire df to postgres implicitly
+    Description:
+        - Reads json files and populates it into df
+        - Writes entire df to postgres implicitly
+
+    Arguments:
+        cur: the cursor object.
+        conn: postgres connection object.
+        filepath: data file path.
+        func: data processing function
+
+    Returns:
+        None
     """
     # get all files matching extension from directory
     all_files = get_files(filepath)
