@@ -10,8 +10,8 @@ time_table_drop = "DROP TABLE IF EXISTS timestamp_d;"
 
 songplay_table_create = ("""CREATE TABLE IF NOT EXISTS
                                 songplay_f (songplay_id SERIAL PRIMARY KEY,
-                                            start_time BIGINT,
-                                            user_id INT,
+                                            start_time TIMESTAMP NOT NULL,
+                                            user_id INT NOT NULL,
                                             level VARCHAR,
                                             song_id VARCHAR,
                                             artist_id VARCHAR,
@@ -41,7 +41,7 @@ artist_table_create = ("""CREATE TABLE IF NOT EXISTS
                                             longitude FLOAT);""")
 
 time_table_create = ("""CREATE TABLE IF NOT EXISTS
-                                timestamp_d (start_time BIGINT PRIMARY KEY,
+                                timestamp_d (start_time TIMESTAMP PRIMARY KEY,
                                             hour INT,
                                             day INT,
                                             week INT,
@@ -60,7 +60,9 @@ songplay_table_insert = ("""
 user_table_insert = ("""
     INSERT INTO users_d (user_id, first_name, last_name, gender, level)
     VALUES (%s, %s, %s, %s, %s)
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT (user_id)
+    DO UPDATE SET
+        level = EXCLUDED.level;
 """)
 
 song_table_insert = ("""
@@ -70,9 +72,14 @@ song_table_insert = ("""
 """)
 
 artist_table_insert = ("""
-    INSERT INTO artists_d (artist_id, artist_name, location, latitude, longitude)
+    INSERT INTO artists_d (artist_id, artist_name, location, latitude,
+                            longitude)
     VALUES (%s, %s, %s, %s, %s)
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT (artist_id)
+    DO UPDATE SET
+        location = EXCLUDED.location,
+        latitude = EXCLUDED.latitude,
+        longitude = EXCLUDED.longitude;
 """)
 
 time_table_insert = ("""
@@ -110,5 +117,7 @@ count_check = ("""
 
 # QUERY LISTS
 
-create_table_queries = [songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
-drop_table_queries = [songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
+create_table_queries = [songplay_table_create, user_table_create,
+                    song_table_create, artist_table_create, time_table_create]
+drop_table_queries = [songplay_table_drop, user_table_drop,
+                    song_table_drop, artist_table_drop, time_table_drop]

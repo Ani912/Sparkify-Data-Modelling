@@ -1,5 +1,6 @@
 import os
 import glob
+import time
 import logging
 import psycopg2
 import pandas as pd
@@ -55,16 +56,18 @@ def process_log_file(cur, conn, filelist):
     log_df = pd.concat(logs, ignore_index=True)
 
     # filter by NextSong action
-    df = log_df.loc[log_df['page'] == 'NextSong']
+    df = log_df.loc[log_df['page'] == 'NextSong'].astype({'ts': 'datetime64[ms]'})
 
     # convert timestamp column to datetime
     t = pd.to_datetime(df['ts'], unit='ms')
 
     # insert time data records
-    time_data = [df.ts.values, t.dt.hour.values, t.dt.day.values, \
-                t.dt.weekofyear.values, t.dt.month.values, \
-                t.dt.year.values, t.dt.weekday.values]
-    column_labels = ['start_time', 'hour', 'day', \
+    # hour, day, week of year, month, year, and weekday
+    time_data = [t.dt.to_pydatetime(), t.dt.hour.values.tolist(),
+                 t.dt.day.values.tolist(), t.dt.weekofyear.values.tolist(),
+                 t.dt.month.values.tolist(), t.dt.year.values.tolist(),
+                 t.dt.weekday.values.tolist()]
+    column_labels = ['start_time', 'hour', 'day',
                     'week', 'month', 'year', 'weekday']
     time_df = pd.DataFrame(time_data).T
     time_df.columns = column_labels
@@ -140,11 +143,11 @@ def main():
     process_data(cur, conn, filepath='log_data', func=process_log_file)
 
     print("....All tables populated with data....")
-    
+
     cur.execute(count_check)
     assert cur.fetchone()[0] == 1, 'Duplicate songid or artistid found in the table'
     print("!!!DATA CHECK COMPLETE!!!")
-    
+
     conn.close()
 
 
